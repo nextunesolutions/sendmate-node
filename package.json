@@ -1,0 +1,35 @@
+{
+  "name": "sendmate-payment",
+  "version": "1.0.0",
+  "description": "TypeScript SDK for SendMate payment integration",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "example": "ts-node example/index.ts",
+    "dev": "nodemon",
+    "dev:example": "nodemon --exec ts-node example/index.ts",
+    "watch": "tsc --watch"
+  },
+  "keywords": [
+    "sendmate",
+    "payment",
+    "typescript",
+    "sdk"
+  ],
+  "author": "",
+  "license": "MIT",
+"dependencies": {
+  "axios": "^1.6.0",
+  "dotenv": "^16.3.1",
+  "express": "^4.18.2"
+},
+"devDependencies": {
+  "@types/express": "^4.17.17",
+  "@types/node": "^20.8.0",
+  "nodemon": "^3.0.1",
+  "ts-node": "^10.9.1",
+  "typescript": "^5.2.2"
+}
+}
