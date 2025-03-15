@@ -44,6 +44,7 @@ export interface PaymentStatusResponse {
 
 // Configuration
 export interface SendMateConfig {
-  baseUrl: string;
+  baseUrl?: string;
   credentials: AuthCredentials;
+  sandbox?: boolean;
 } 

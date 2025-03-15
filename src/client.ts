@@ -1,6 +1,10 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { SendMateConfig } from './types';
 
+// Define API URLs
+const LIVE_API_URL = 'https://api.sendmate.finance';
+const SANDBOX_API_URL = 'https://sandbox.sendmate.finance';
+
 export class SendMateClient {
   private client: AxiosInstance;
   private config: SendMateConfig;
@@ -9,6 +13,12 @@ export class SendMateClient {
 
   constructor(config: SendMateConfig) {
     this.config = config;
+    
+    // Determine the base URL based on sandbox flag if not explicitly provided
+    if (!config.baseUrl) {
+      config.baseUrl = config.sandbox ? SANDBOX_API_URL : LIVE_API_URL;
+    }
+    
     this.client = axios.create({
       baseURL: config.baseUrl,
       headers: {
