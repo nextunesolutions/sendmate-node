@@ -21,6 +21,7 @@ app.set('views', path.join(__dirname, 'views'));
 // Initialize the SendMate client
 const sendmate = SendMate.create(
   {
+    baseUrl: process.env.SENDMATE_BASE_URL || undefined,
     clientId: process.env.SENDMATE_CLIENT_ID || 'YOUR_CLIENT_ID',
     secretId: process.env.SENDMATE_SECRET_ID || 'YOUR_SECRET_ID'
   },
