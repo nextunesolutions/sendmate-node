@@ -13,6 +13,7 @@ export interface SendMateResponse<T> {
 export interface AuthCredentials {
   clientId: string;
   secretId: string;
+  baseUrl?: string;
 }
 
 export interface TokenResponse {

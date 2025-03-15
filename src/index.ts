@@ -30,7 +30,7 @@ export class SendMate {
     sandbox: boolean = false
   ): SendMate {
     return new SendMate({
-      baseUrl: sandbox ? SANDBOX_API_URL : LIVE_API_URL,
+      baseUrl: credentials.baseUrl ? credentials.baseUrl : sandbox ? SANDBOX_API_URL : LIVE_API_URL,
       credentials,
       sandbox
     });
