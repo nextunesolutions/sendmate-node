@@ -27,6 +27,8 @@ const sendmate = SendMate.create(
   process.env.SENDMATE_SANDBOX === 'true'
 );
 
+// console.log(sendmate);
+
 // Routes
 app.get('/', (req, res) => {
   // Check if custom index.html exists
