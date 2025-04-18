@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import { SendMateService } from '../src';
 import path from 'path';
 import fs from 'fs';
+import expressLayouts from 'express-ejs-layouts';
+
 // Load environment variables
 dotenv.config();
 
@@ -17,7 +19,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Set up EJS as the view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
+app.use(expressLayouts as any);
+app.set('layout', 'layout');
 
 // Initialize the SendMate client with publishable and secret keys
 const sendmate = new SendMateService(
