@@ -79,4 +79,12 @@ declare global {
   }
 }
 
-export {}; 
+export {
+  CheckoutSessionRequest,
+  CreateCheckoutSessionResponse,
+  CheckoutSessionResponse,
+  CheckoutSessionStatusResponse,
+  MpesaDepositRequest,
+  MpesaDepositResponse,
+  MpesaTransactionStatusResponse
+}; 

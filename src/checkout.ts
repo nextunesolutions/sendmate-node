@@ -1,5 +1,10 @@
 import RequestClient from './request';
-
+import {
+    CheckoutSessionRequest,
+    CreateCheckoutSessionResponse,
+    CheckoutSessionResponse,
+    CheckoutSessionStatusResponse
+} from './types';
 class CheckOut extends RequestClient {
     constructor(publishableKey: string, secretKey: string, isSandbox: boolean) {
         super(publishableKey, secretKey, isSandbox);

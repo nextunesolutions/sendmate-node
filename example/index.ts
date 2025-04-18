@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { SendMate } from '../src';
+import { SendMateService } from '../src';
 import path from 'path';
 import fs from 'fs';
 // Load environment variables
@@ -18,79 +18,78 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Initialize the SendMate client
-const sendmate = SendMate.create(
-  {
-    baseUrl: process.env.SENDMATE_BASE_URL || undefined,
-    clientId: process.env.SENDMATE_CLIENT_ID || 'YOUR_CLIENT_ID',
-    secretId: process.env.SENDMATE_SECRET_ID || 'YOUR_SECRET_ID'
-  },
+
+// Initialize the SendMate client with publishable and secret keys
+const sendmate = new SendMateService(
+  process.env.SENDMATE_PUBLISHABLE_KEY || 'YOUR_PUBLISHABLE_KEY',
+  process.env.SENDMATE_SECRET_KEY || 'YOUR_SECRET_KEY',
   process.env.SENDMATE_SANDBOX === 'true'
 );
 
-// console.log(sendmate);
-
 // Routes
 app.get('/', (req, res) => {
-  // Check if custom index.html exists
-  if (fs.existsSync(path.join(__dirname, 'public', 'index.html'))) {
-    return res.sendFile(path.join(__dirname, 'public', 'index.html'));
-  }
-  
-  // Otherwise render the EJS template
-  res.render('index');
+  res.render('index', {
+    title: 'SendMate Payment Demo',
+    description: 'A simple demo of SendMate payment integration',
+    publishableKey: process.env.SENDMATE_PUBLISHABLE_KEY || 'YOUR_PUBLISHABLE_KEY'
+  });
 });
 
-// Initiate payment endpoint
-app.post('/api/payments', async (req, res) => {
+// Create checkout session endpoint
+app.post('/api/checkout', async (req, res) => {
   try {
-    const { amount, currency } = req.body;
+    const { amount, description, currency = 'KES' } = req.body;
     
-    if (!amount || !currency) {
+    if (!amount) {
       return res.status(400).json({ 
         success: false, 
-        message: 'Amount and currency are required' 
+        message: 'Amount is required' 
       });
     }
 
-    const payment = await sendmate.payment.initiatePayment({
+    const session = await sendmate.checkout.create_checkout_session({
       amount,
+      description,
       currency,
-      return_url: `${req.protocol}://${req.get('host')}/payment-success`,
-      cancel_url: `${req.protocol}://${req.get('host')}/payment-cancel`
+      return_url: `${req.protocol}://${req.get('host')}/success`,
+      cancel_url: `${req.protocol}://${req.get('host')}/cancel`
     });
+
+    if (!session) {
+      throw new Error('Failed to create checkout session');
+    }
 
     res.json({
       success: true,
       data: {
-        token: payment.token,
-        payment_url: payment.payment_url
+        session_id: session.session_id,
+        url: session.url
       }
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Payment initiation error:', errorMessage);
+    console.error('Checkout error:', errorMessage);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to initiate payment',
+      message: 'Failed to create checkout session',
       error: errorMessage 
     });
   }
 });
 
-// Check payment status endpoint
-app.get('/api/payments/:token', async (req, res) => {
+// Check session status endpoint
+app.get('/api/sessions/:sessionId', async (req, res) => {
   try {
-    const { token } = req.params;
+    const { sessionId } = req.params;
     
-    if (!token) {
+    if (!sessionId) {
       return res.status(400).json({ 
         success: false, 
-        message: 'Payment token is required' 
+        message: 'Session ID is required' 
       });
     }
 
-    const status = await sendmate.payment.checkPaymentStatus(token);
+    const status = await sendmate.checkout.get_checkout_session_status(sessionId);
     
     res.json({
       success: true,
@@ -98,24 +97,31 @@ app.get('/api/payments/:token', async (req, res) => {
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Payment status check error:', errorMessage);
+    console.error('Session status error:', errorMessage);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to check payment status',
+      message: 'Failed to check session status',
       error: errorMessage 
     });
   }
 });
 
-// Payment success callback route
-app.get('/payment-success', (req, res) => {
-  const { token } = req.query;
-  res.render('payment-success', { token });
+// Success callback route
+app.get('/success', (req, res) => {
+  const { session_id } = req.query;
+  res.render('success', { 
+    title: 'Payment Successful',
+    session_id,
+    message: 'Your payment was processed successfully!'
+  });
 });
 
-// Payment cancel callback route
-app.get('/payment-cancel', (req, res) => {
-  res.render('payment-cancel');
+// Cancel callback route
+app.get('/cancel', (req, res) => {
+  res.render('cancel', { 
+    title: 'Payment Cancelled',
+    message: 'Your payment was cancelled.'
+  });
 });
 
 // Start the server

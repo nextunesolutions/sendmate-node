@@ -47,7 +47,10 @@ class RequestClient  {
             const response = await this.API_CLIENT.post(url, data);
             return response.data as T;
         } catch (error: any) {
-            throw new Error(error.response.data);
+            throw new Error(
+                error.response.data ?
+                JSON.stringify(error.response.data) : error.message 
+            );
         }
     }
 
