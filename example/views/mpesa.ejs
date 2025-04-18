@@ -31,6 +31,21 @@ M-Pesa Payment
     </div>
   </div>
 
+  <div id="statusSection" class="hidden mt-8 border-t pt-6">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Payment Status</h3>
+    <div id="statusDetails" class="bg-gray-50 p-4 rounded-md">
+      <p class="text-sm text-gray-600">Transaction reference: <span id="transactionReference" class="font-medium text-gray-900"></span></p>
+      <p class="text-sm text-gray-600 mt-2">Status: <span id="transactionStatus" class="font-medium"></span></p>
+      <p class="text-sm text-gray-600 mt-2">Last checked: <span id="lastChecked" class="font-medium text-gray-900"></span></p>
+    </div>
+    <button 
+      id="checkStatusButton" 
+      class="mt-4 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+    >
+      Check Status
+    </button>
+  </div>
+
   <form id="mpesaForm" class="space-y-6">
     <div>
       <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
@@ -99,20 +114,7 @@ M-Pesa Payment
     </div>
   </form>
   
-  <div id="statusSection" class="hidden mt-8 border-t pt-6">
-    <h3 class="text-lg font-medium text-gray-900 mb-4">Payment Status</h3>
-    <div id="statusDetails" class="bg-gray-50 p-4 rounded-md">
-      <p class="text-sm text-gray-600">Transaction reference: <span id="transactionReference" class="font-medium text-gray-900"></span></p>
-      <p class="text-sm text-gray-600 mt-2">Status: <span id="transactionStatus" class="font-medium"></span></p>
-      <p class="text-sm text-gray-600 mt-2">Last checked: <span id="lastChecked" class="font-medium text-gray-900"></span></p>
-    </div>
-    <button 
-      id="checkStatusButton" 
-      class="mt-4 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-    >
-      Check Status
-    </button>
-  </div>
+
 </div>
 
 <%- contentFor('scripts') %>
