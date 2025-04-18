@@ -29,16 +29,31 @@ const sendmate = new SendMateService(
   process.env.SENDMATE_SANDBOX === 'true'
 );
 
-// Routes
+// Main route
 app.get('/', (req, res) => {
   res.render('index', {
     title: 'SendMate Payment Demo',
-    description: 'A simple demo of SendMate payment integration',
-    publishableKey: process.env.SENDMATE_PUBLISHABLE_KEY || 'YOUR_PUBLISHABLE_KEY'
+    description: 'Choose your preferred payment method'
   });
 });
 
-// Create checkout session endpoint
+// Card payment checkout page
+app.get('/checkout', (req, res) => {
+  res.render('checkout', {
+    title: 'Card Payment',
+    description: 'Make a payment using your card'
+  });
+});
+
+// M-Pesa payment page
+app.get('/mpesa', (req, res) => {
+  res.render('mpesa', {
+    title: 'M-Pesa Payment',
+    description: 'Make a payment using M-Pesa'
+  });
+});
+
+// Create checkout session endpoint for card payments
 app.post('/api/checkout', async (req, res) => {
   try {
     const { amount, description, currency = 'KES' } = req.body;
@@ -80,6 +95,107 @@ app.post('/api/checkout', async (req, res) => {
   }
 });
 
+// M-Pesa STK push endpoint
+app.post('/api/mpesa/stk', async (req, res) => {
+  try {
+    const { phone, amount, description } = req.body;
+    
+    if (!phone) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Phone number is required' 
+      });
+    }
+
+    if (!amount) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Amount is required' 
+      });
+    }
+
+    // Check phone number format
+    if (!phone.startsWith('+254') || phone.length !== 13) {
+      return res.status(400).json({
+        success: false,
+        message: 'Phone number must be in format +254XXXXXXXXX'
+      });
+    }
+
+    // Make the M-Pesa STK push request
+    const stkPushResponse = await sendmate.collection.mpesa_stk_push({
+      amount: parseFloat(amount) as any,
+      phone_number: phone,
+      description: description || 'Payment for services',
+    });
+
+    if (!stkPushResponse) {
+      throw new Error('Failed to initiate M-Pesa payment');
+    }
+
+    res.json({
+      success: true,
+      message: 'M-Pesa STK push initiated successfully',
+      data: {
+        reference: stkPushResponse.reference,
+        status: stkPushResponse.status
+      }
+    });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('M-Pesa STK push error:', errorMessage);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to initiate M-Pesa payment',
+      error: errorMessage 
+    });
+  }
+});
+
+// Check M-Pesa payment status endpoint
+app.get('/api/mpesa/status/:reference', async (req, res) => {
+  try {
+    const { reference } = req.params;
+    
+    if (!reference) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Transaction reference is required' 
+      });
+    }
+
+    const statusResponse = await sendmate.collection.mpesa_check_mpesa_status(reference);
+    
+    if (!statusResponse) {
+      throw new Error('Failed to check M-Pesa status');
+    }
+
+    res.json({
+      success: true,
+      data: statusResponse
+    });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('M-Pesa status check error:', errorMessage);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to check M-Pesa payment status',
+      error: errorMessage 
+    });
+  }
+});
+
+// M-Pesa success callback (for webhook or redirect)
+app.get('/mpesa/success', (req, res) => {
+  const { reference, amount, phone } = req.query;
+  res.render('mpesa-success', {
+    title: 'M-Pesa Payment Successful',
+    reference,
+    amount,
+    phone
+  });
+});
+
 // Check session status endpoint
 app.get('/api/sessions/:sessionId', async (req, res) => {
   try {
@@ -109,7 +225,7 @@ app.get('/api/sessions/:sessionId', async (req, res) => {
   }
 });
 
-// Success callback route
+// Success callback route for card payments
 app.get('/success', (req, res) => {
   const { session_id } = req.query;
   res.render('success', { 

@@ -6,11 +6,11 @@ class Collection extends RequestClient {
     }
 
     async mpesa_stk_push(data:MpesaDepositRequest): Promise<MpesaDepositResponse | undefined> {
-        return await this.post<MpesaDepositResponse>('/payments/mpesa/stk-push', data);
+        return await this.post<MpesaDepositResponse>('/payments/mpesa/stkpush', data);
     }
 
     async mpesa_check_mpesa_status(reference:string): Promise<MpesaTransactionStatusResponse | undefined> {
-        return await this.get<MpesaTransactionStatusResponse>(`/payments/mpesa/check-mpesa-status/${reference}`);
+        return await this.get<MpesaTransactionStatusResponse>(`/payments/mpesa/check-transaction-status/${reference}`);
     }
 
     

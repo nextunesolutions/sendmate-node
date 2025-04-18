@@ -1,0 +1,123 @@
+<%- contentFor('body') %>
+
+<div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+  <%- include('./partials/title', { title: 'Card Payment', description: 'Enter the payment details below to test the SendMate card payment integration.' }) %>
+
+  <div id="error" class="hidden bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-9h2v5H9V9zm0-4h2v2H9V5z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p id="errorMessage" class="text-sm text-red-700"></p>
+      </div>
+    </div>
+  </div>
+
+  <form id="paymentForm" class="space-y-6">
+    <div>
+      <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Amount (KES)</label>
+      <div class="relative rounded-md">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <span class="text-gray-500 sm:text-sm">KES</span>
+        </div>
+        <input
+          type="number"
+          id="amount"
+          name="amount"
+          required
+          min="1"
+          step="any"
+          class="form-input block w-full pl-12 pr-3 py-3 text-base rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+          placeholder="0.00"
+        >
+      </div>
+      <p class="mt-1 text-xs text-gray-500">Enter a valid amount (minimum 1 KES)</p>
+    </div>
+    <div>
+      <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+      <input
+        type="text"
+        id="description"
+        name="description"
+        class="form-input block w-full py-3 px-3 text-base rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+        placeholder="Enter payment description"
+      >
+      <p class="mt-1 text-xs text-gray-500">Briefly describe what this payment is for</p>
+    </div>
+    <div>
+      <button
+        type="submit"
+        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
+      >
+        <span id="submitText">Proceed to Payment</span>
+        <span id="loadingSpinner" class="hidden ml-2">
+          <svg class="animate-spin -ml-1 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<%- contentFor('scripts') %>
+<script>
+  document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const amount = document.getElementById('amount').value;
+    const description = document.getElementById('description').value;
+    const errorDiv = document.getElementById('error');
+    const errorMessage = document.getElementById('errorMessage');
+    const submitText = document.getElementById('submitText');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+
+    // Hide any previous errors
+    errorDiv.classList.add('hidden');
+
+    if (!amount || amount <= 0) {
+      errorMessage.textContent = 'Please enter a valid amount';
+      errorDiv.classList.remove('hidden');
+      return;
+    }
+
+    // Show loading state
+    submitText.textContent = 'Processing...';
+    loadingSpinner.classList.remove('hidden');
+
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount, description }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        window.location.href = data.data.url;
+      } else {
+        errorMessage.textContent = data.message || 'Failed to create checkout session';
+        errorDiv.classList.remove('hidden');
+        // Reset button
+        submitText.textContent = 'Proceed to Payment';
+        loadingSpinner.classList.add('hidden');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      errorMessage.textContent = 'An error occurred while processing your request';
+      errorDiv.classList.remove('hidden');
+      // Reset button
+      submitText.textContent = 'Proceed to Payment';
+      loadingSpinner.classList.add('hidden');
+    }
+  });
+</script>
+
+<%- contentFor('pageTitle') %>
+Card Payment - SendMate Demo

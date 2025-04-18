@@ -1,0 +1,28 @@
+<%- contentFor('pageTitle') %>
+M-Pesa Payment Successful
+
+<%- contentFor('body') %>
+<div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6 text-center">
+    <div class="mb-4">
+        <svg class="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+    </div>
+    
+    <%- include('./partials/title', { title: 'M-Pesa Payment Successful!', description: 'Your M-Pesa payment has been processed successfully.' }) %>
+    
+    <div class="bg-gray-50 p-4 rounded-md mb-6 text-left">
+        <h3 class="text-sm font-medium text-gray-900 mb-2">Payment Details:</h3>
+        <p class="text-sm text-gray-600">Amount: <span class="font-medium text-gray-900">KES <%= amount %></span></p>
+        <p class="text-sm text-gray-600">Phone Number: <span class="font-medium text-gray-900"><%= phone %></span></p>
+        <p class="text-sm text-gray-600">Reference: <span class="font-medium text-gray-900"><%= reference %></span></p>
+        <p class="text-sm text-gray-600">Transaction Date: <span class="font-medium text-gray-900"><%= new Date().toLocaleString() %></span></p>
+    </div>
+    
+    <a href="/mpesa" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        Make Another Payment
+    </a>
+    <a href="/" class="ml-4 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        Return to Home
+    </a>
+</div>
