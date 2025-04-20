@@ -1,5 +1,5 @@
 import RequestClient from './request';
-import { Wallet } from './types';
+import { PaginationParams, Wallet, TransactionPaginatedResponse } from './types';
 
 class WalletClient extends RequestClient {
     constructor(publishableKey: string, secretKey: string, isSandbox: boolean) {
@@ -29,8 +29,8 @@ class WalletClient extends RequestClient {
      * @param params - Optional query parameters (page, limit, etc.)
      * @returns Promise<Wallet | undefined>
      */
-    async get_wallet_transactions(walletId: string, params?: Record<string, any>): Promise<Wallet | undefined> {
-        return await this.get<Wallet>(`/payments/wallets/${walletId}/transactions`, params);
+    async get_wallet_transactions(walletId: string, params?: PaginationParams): Promise<TransactionPaginatedResponse | undefined> {
+        return await this.get<TransactionPaginatedResponse>(`/payments/wallets/${walletId}/transactions`, params);
     }
 
     /**

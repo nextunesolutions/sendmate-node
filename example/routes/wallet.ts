@@ -20,7 +20,10 @@ router.get('/', async (req, res) => {
 
         // Get transactions for the first wallet to display in the overview
         const transactions = wallets.length > 0 ? 
-            (await client.wallet.get_wallet_transactions(wallets[0].id, { limit: 10 }))?.transactions || [] : 
+            (await client.wallet.get_wallet_transactions(
+                wallets[0].id, 
+                { per_page: 10 , page:1 }
+            ))?.results || [] : 
             [];
 
         res.render('wallet', { 

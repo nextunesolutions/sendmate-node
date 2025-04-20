@@ -132,3 +132,19 @@ export interface Wallet {
     created_at: string;
     updated_at: string;
 } 
+
+export interface PaginatedResponse<T> {
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: T[];
+}
+
+
+export interface PaginationParams {
+    page?: number;
+    per_page?: number;
+}
+
+
+export interface TransactionPaginatedResponse extends PaginatedResponse<Transaction> {}
