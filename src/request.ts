@@ -33,9 +33,9 @@ class RequestClient  {
         }
     }
 
-    public async get<T>(url: string): Promise<T | undefined> {
+    public async get<T>(url: string, params?: Record<string, any>): Promise<T | undefined> {
         try {
-            const response = await this.API_CLIENT.get(url);
+            const response = await this.API_CLIENT.get(url, { params });
             return response.data as T;
         } catch (error: any) {
             throw new Error(error.response.data);

@@ -87,4 +87,48 @@ export {
   MpesaDepositRequest,
   MpesaDepositResponse,
   MpesaTransactionStatusResponse
-}; 
+};
+
+export interface Currency {
+    code: string;
+    name: string;
+    symbol: string;
+    is_active: boolean;
+}
+
+export interface Recipient {
+    id: string;
+    name: string;
+    phone_number: string;
+    email: string | null;
+    metadata: Record<string, any>;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Transaction {
+    id: string;
+    amount: string;
+    type: 'CREDIT' | 'DEBIT';
+    status: string;
+    description: string;
+    reference: string;
+    is_money_in: boolean;
+    is_money_out: boolean;
+    currency: Currency;
+    metadata: Record<string, any>;
+    recipient: Recipient | null;
+    recipients: Recipient[];
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Wallet {
+    id: string;
+    currency: Currency;
+    transactions: Transaction[];
+    balance: string;
+    is_default: boolean;
+    created_at: string;
+    updated_at: string;
+} 
