@@ -4,7 +4,8 @@ import { SendMateService } from '../src';
 import path from 'path';
 import fs from 'fs';
 import expressLayouts from 'express-ejs-layouts';
-
+import walletRoutes from './routes/wallet';
+import client from './client';
 // Load environment variables
 dotenv.config();
 
@@ -23,13 +24,12 @@ app.use(expressLayouts as any);
 app.set('layout', 'layout');
 
 // Initialize the SendMate client with publishable and secret keys
-const sendmate = new SendMateService(
-  process.env.SENDMATE_PUBLISHABLE_KEY || 'YOUR_PUBLISHABLE_KEY',
-  process.env.SENDMATE_SECRET_KEY || 'YOUR_SECRET_KEY',
-  process.env.SENDMATE_SANDBOX === 'true'
-);
 
-// Main route
+
+// Wallet Routes
+app.use('/wallets', walletRoutes);
+
+// Home route
 app.get('/', (req, res) => {
   res.render('index', {
     title: 'SendMate Payment Demo',
@@ -65,7 +65,7 @@ app.post('/api/checkout', async (req, res) => {
       });
     }
 
-    const session = await sendmate.checkout.create_checkout_session({
+    const session = await client.checkout.create_checkout_session({
       amount,
       description,
       currency,
@@ -123,7 +123,7 @@ app.post('/api/mpesa/stk', async (req, res) => {
     }
 
     // Make the M-Pesa STK push request
-    const stkPushResponse = await sendmate.collection.mpesa_stk_push({
+    const stkPushResponse = await client.collection.mpesa_stk_push({
       amount: parseFloat(amount) as any,
       phone_number: phone,
       description: description || 'Payment for services',
@@ -164,7 +164,7 @@ app.get('/api/mpesa/status/:reference', async (req, res) => {
       });
     }
 
-    const statusResponse = await sendmate.collection.mpesa_check_mpesa_status(reference);
+    const statusResponse = await client.collection.mpesa_check_mpesa_status(reference);
     
     if (!statusResponse) {
       throw new Error('Failed to check M-Pesa status');
@@ -208,7 +208,7 @@ app.get('/api/sessions/:sessionId', async (req, res) => {
       });
     }
 
-    const status = await sendmate.checkout.get_checkout_session_status(sessionId);
+    const status = await client.checkout.get_checkout_session_status(sessionId);
     
     res.json({
       success: true,
@@ -225,6 +225,9 @@ app.get('/api/sessions/:sessionId', async (req, res) => {
   }
 });
 
+
+
+
 // Success callback route for card payments
 app.get('/success', (req, res) => {
   const { session_id } = req.query;
@@ -240,6 +243,15 @@ app.get('/cancel', (req, res) => {
   res.render('cancel', { 
     title: 'Payment Cancelled',
     message: 'Your payment was cancelled.'
+  });
+});
+
+// Error handling middleware
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(err.stack);
+  res.status(500).render('error', { 
+    message: 'Something went wrong!',
+    title: 'Error'
   });
 });
 

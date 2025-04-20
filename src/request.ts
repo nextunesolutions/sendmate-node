@@ -36,10 +36,13 @@ class RequestClient  {
     public async get<T>(url: string, params?: Record<string, any>): Promise<T | undefined> {
         try {
             const response = await this.API_CLIENT.get(url, { params });
+            // const response = await this.API_CLIENT.get(url);
             return response.data as T;
         } catch (error: any) {
-            throw new Error(error.response.data);
-        }
+            throw new Error(
+                error.response.data ?
+                JSON.stringify(error.response.data) : error.message 
+            );        }
     }
 
     public async post<T>(url: string, data: any): Promise<T | undefined> {
@@ -59,7 +62,10 @@ class RequestClient  {
             const response = await this.API_CLIENT.put(url, data);
             return response.data as T;
         } catch (error: any) {
-            throw new Error(error.response.data);
+            throw new Error(
+                error.response.data ?
+                JSON.stringify(error.response.data) : error.message 
+            );
         }
     }
 
@@ -68,7 +74,10 @@ class RequestClient  {
             const response = await this.API_CLIENT.delete(url);
             return response.data as T;
         } catch (error: any) {
-            throw new Error(error.response.data);
+            throw new Error(
+                error.response.data ?
+                JSON.stringify(error.response.data) : error.message 
+            );
         }
     }
 }

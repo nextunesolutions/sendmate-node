@@ -1,0 +1,118 @@
+<%- include('partials/header') %>
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+                    <%= wallet.currency.name %> Wallet
+                </h1>
+                <p class="text-gray-600 dark:text-gray-300 mt-2">
+                    Balance: <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                        <%= wallet.currency.symbol %><%= wallet.balance %>
+                    </span>
+                </p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="/wallets" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
+                    Back to Wallets
+                </a>
+                <% if (!wallet.is_default) { %>
+                    <form action="/wallets/<%= wallet.id %>/set-default" method="POST" class="inline">
+                        <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg">
+                            Set as Default
+                        </button>
+                    </form>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Wallet Details -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Wallet Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <p class="text-gray-600 dark:text-gray-300">Currency Code</p>
+                    <p class="text-gray-900 dark:text-white font-medium"><%= wallet.currency.code %></p>
+                </div>
+                <div>
+                    <p class="text-gray-600 dark:text-gray-300">Currency Symbol</p>
+                    <p class="text-gray-900 dark:text-white font-medium"><%= wallet.currency.symbol %></p>
+                </div>
+                <div>
+                    <p class="text-gray-600 dark:text-gray-300">Status</p>
+                    <p class="text-gray-900 dark:text-white font-medium">
+                        <%= wallet.currency.is_active ? 'Active' : 'Inactive' %>
+                    </p>
+                </div>
+                <div>
+                    <p class="text-gray-600 dark:text-gray-300">Default Wallet</p>
+                    <p class="text-gray-900 dark:text-white font-medium">
+                        <%= wallet.is_default ? 'Yes' : 'No' %>
+                    </p>
+                </div>
+                <div>
+                    <p class="text-gray-600 dark:text-gray-300">Created At</p>
+                    <p class="text-gray-900 dark:text-white font-medium">
+                        <%= new Date(wallet.created_at).toLocaleString() %>
+                    </p>
+                </div>
+                <div>
+                    <p class="text-gray-600 dark:text-gray-300">Last Updated</p>
+                    <p class="text-gray-900 dark:text-white font-medium">
+                        <%= new Date(wallet.updated_at).toLocaleString() %>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">Transactions</h2>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Description</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amount</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <% wallet.transactions.forEach(transaction => { %>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                        <%= new Date(transaction.created_at).toLocaleString() %>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                        <%= transaction.description %>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm <%= transaction.type === 'CREDIT' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
+                                        <%= transaction.type === 'CREDIT' ? '+' : '-' %><%= transaction.currency.symbol %><%= transaction.amount %>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                        <%= transaction.type %>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                            <%= transaction.status === 'COMPLETED' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : 
+                                               transaction.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100' : 
+                                               'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100' %>">
+                                            <%= transaction.status %>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %> 
