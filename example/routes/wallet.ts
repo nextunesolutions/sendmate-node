@@ -18,12 +18,21 @@ router.get('/', async (req, res) => {
             });
         }
 
+        console.log(wallets);
+
+        const default_wallet = wallets.find(wallet => wallet.is_default);
+
         // Get transactions for the first wallet to display in the overview
-        const transactions = wallets.length > 0 ? 
+        const transactions_response = default_wallet ? 
             (await client.wallet.get_wallet_transactions(
-                wallets[0].id, 
+                default_wallet.id, 
                 { per_page: 10 , page:1 }
-            ))?.results || [] : 
+            )) : undefined;
+
+        console.log(transactions_response);
+
+        const transactions = transactions_response?.results || [];
+
             [];
 
         res.render('wallet', { 

@@ -40,7 +40,7 @@ class RequestClient  {
             return response.data as T;
         } catch (error: any) {
             throw new Error(
-                error.response.data ?
+                error.response && error.response.data ?
                 JSON.stringify(error.response.data) : error.message 
             );        }
     }
@@ -51,7 +51,7 @@ class RequestClient  {
             return response.data as T;
         } catch (error: any) {
             throw new Error(
-                error.response.data ?
+                error.response && error.response.data ?
                 JSON.stringify(error.response.data) : error.message 
             );
         }
