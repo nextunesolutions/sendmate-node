@@ -1,6 +1,6 @@
 {
   "name": "sendmate-node",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "SendMate Node.js SDK for payment processing and wallet management",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
