@@ -8,6 +8,8 @@
     "dist"
   ],
   "scripts": {
+    "dev":"nodemon",
+    "dev:example":"nodemon",
     "build": "tsc",
     "test": "jest",
     "lint": "eslint . --ext .ts",
